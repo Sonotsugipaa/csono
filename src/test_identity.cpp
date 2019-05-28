@@ -4,7 +4,7 @@
 
 
 
-namespace test {
+namespace csono::test {
 
 	bool perform(const char * what, bool outcome) {
 		std::cout << (outcome? "ok  <--" : "fail  <") << "----  " << what << std::endl;
@@ -50,7 +50,7 @@ namespace test {
 
 
 int main(int, char**) {
-	bool result = test::perform();
+	bool result = csono::test::perform();
 	std::cout << "\nResult: " << (result? "success" : "failure") << std::endl;
 	return result? EXIT_SUCCESS : EXIT_FAILURE;
 }
