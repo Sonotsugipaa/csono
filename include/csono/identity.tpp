@@ -7,7 +7,7 @@
 
 
 
-namespace uid {
+namespace csono::uid {
 
 	class Key {
 	public:
