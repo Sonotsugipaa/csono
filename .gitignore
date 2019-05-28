@@ -1,3 +1,9 @@
+# Ignored local folders
+bin/
+build/
+lib/
+local/
+
 # Prerequisites
 *.d
 
