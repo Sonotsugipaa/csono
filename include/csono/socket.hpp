@@ -53,11 +53,14 @@ inline namespace csono {
 	class Socket {
 		friend Connection;
 	private:
-		int fd = -1;
+		int sock_fd = -1;
 
 		Socket(int fd);
 
 	public:
+		class Tcp;
+		class Udp;
+
 		Socket(int addr_family, int socket_type, int protocol = 0);
 		Socket(const Socket &) = delete;
 		Socket(Socket&&);
@@ -66,20 +69,33 @@ inline namespace csono {
 		Socket& operator = (const Socket &) = delete;
 		Socket& operator = (Socket&&);
 
-		constexpr operator bool () const { return fd != -1; }
-		constexpr bool operator ! () const { return fd == -1; }
+		constexpr operator bool () const { return sock_fd != -1; }
+		constexpr bool operator ! () const { return sock_fd == -1; }
 
 		bool bind(uint16_t port);
 
 		bool listen(unsigned int backlog);
 		bool connect(Address remote_host);
 
+		constexpr int fd() const { return sock_fd; }
+
 		Connection accept();
 
 		void close();
 
-		ssize_t  read(void* dest, size_t max);
-		ssize_t write(const void * src, size_t size);
+		ssize_t  read(void* dest, size_t max, unsigned int flags = 0);
+		ssize_t write(const void * src, size_t size, unsigned int flags = 0);
+	};
+
+
+	class Socket::Tcp : public Socket {
+	public:
+		Tcp(int addr_family);
+	};
+
+	class Socket::Udp : public Socket {
+	public:
+		Udp(int addr_family);
 	};
 
 
