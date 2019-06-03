@@ -88,7 +88,10 @@ inline namespace csono {
 		inline const sockaddr * generic() const { return nodes.ptr->addr; }
 		inline socklen_t generic_size() const { return nodes.ptr->addr_len; }
 
-		inline Address operator [] (unsigned i) const { return Address(nodes.ptr[i]); };
+		inline Address operator [] (unsigned i) const {
+			if(i > nodes.size)  return Address();
+			return Address(nodes.ptr[i]);
+		};
 		constexpr unsigned size() const { return nodes.size; }
 
 	};
