@@ -6,7 +6,7 @@
 #ifdef DEBUG_IOSTREAM
 	#pragma GCC warning "debug iostream"
 	#include <iostream>
-	#define DEBUG_OUT(debug_output) std::cout<<debug_output<<std::endl;
+	#define DEBUG_OUT(debug_output) std::cout<<"DEBUG >>> "<<debug_output<<std::endl;
 #else
 	#define DEBUG_OUT(a)
 #endif
