@@ -35,13 +35,16 @@ namespace csono::test {
 	bool perform_udp(uint16_t port = 10000) {
 		Socket socket_in = Socket::Udp(AF_INET);
 		Socket socket_out = Socket::Udp(AF_INET);
+		Address local_addr;
 		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';
 
 		if(socket_in && socket_out) {
 			port = try_bind(socket_in, port);
-			socket_out.connect(Address::v4("127.0.0.1", port));
-			socket_out.write("lol", 3);
-			socket_in.read(recv, 3);  recv[3] = '\0';
+			local_addr = Address("localhost", port);
+			if(socket_out.connect(local_addr)) {
+				socket_out.write("lol", 3);
+				socket_in.read(recv, 3);  recv[3] = '\0';
+			}
 		}
 
 		bool retn = (std::string(recv) == "lol");
@@ -53,15 +56,18 @@ namespace csono::test {
 	bool perform_tcp(uint16_t port = 11000) {
 		Socket socket_in = Socket::Tcp(AF_INET);
 		Socket socket_out = Socket::Tcp(AF_INET);
+		Address local_addr;
 		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';
 
 		if(socket_in && socket_out) {
 			port = try_bind(socket_in, port);
+			local_addr = Address("localhost", port);
 			socket_in.listen(4);
-			socket_out.connect(Address::v4("127.0.0.1", port));
-			Connection conn = socket_in.accept();
-			socket_out.write("lol", 3);
-			conn.socket().read(recv, 3);  recv[3] = '\0';
+			if(socket_out.connect(local_addr)) {
+				Connection conn = socket_in.accept();
+				socket_out.write("lol", 3);
+				conn.socket().read(recv, 3);  recv[3] = '\0';
+			}
 		}
 
 		bool retn = (std::string(recv) == "lol");
@@ -69,9 +75,38 @@ namespace csono::test {
 		return retn;
 	}
 
+	std::string addr_out(Address addr) {
+		return
+				addr.fullname() +
+				", " + std::to_string(addr.family()) +
+				", " + std::to_string(addr.generic_size());
+	}
+
+	void perform_addr(const char * host, const char * service) {
+		Address result = Address(host, service);
+		std::cout << service<<" @ "<<host<<" ("<<result.size()<<" results)\n\t";
+
+		if(result.size() > 0)
+			std::cout << ">> "<< addr_out(result[0]);
+		for(unsigned i=1; i < result.size(); ++i)
+			std::cout << "\n\t>> "<< addr_out(result[i]);
+
+		std::cout << '\n'<<std::endl;
+	}
+
+	void perform_addr() {
+		std::cout << "ADDRESS\n";
+		perform_addr("127.0.0.1",   "11000");
+		perform_addr("localhost",   "0");
+		perform_addr("192.169.1.3", "1");
+		perform_addr("invalid",     "http");
+		perform_addr("::1",         "http");
+	}
+
 
 	bool perform() {
-		return perform_udp() && perform_tcp();
+		perform_addr();
+		return perform_udp() & perform_tcp();
 	}
 
 }

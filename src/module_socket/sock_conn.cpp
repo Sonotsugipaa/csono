@@ -1,5 +1,7 @@
 #include <csono/socket.hpp>
 
+#include <cstring>
+
 
 
 namespace csono {
@@ -18,6 +20,9 @@ namespace csono {
 
 	Socket::Tcp::Tcp(int af): Socket::Socket(af, SOCK_STREAM, IPPROTO_TCP) { }
 	Socket::Udp::Udp(int af): Socket::Socket(af, SOCK_DGRAM,  IPPROTO_UDP) { }
+
+	Socket::Tcp::Tcp(Address addr): Tcp::Tcp(addr.family()) { }
+	Socket::Udp::Udp(Address addr): Udp::Udp(addr.family()) { }
 
 
 	Socket::~Socket() {
@@ -46,7 +51,7 @@ namespace csono {
 
 	bool Socket::connect(Address rem) {
 		if(sock_fd == -1)  return false;
-		return -1 != ::connect(sock_fd, rem.generic(), rem.size);
+		return -1 != ::connect(sock_fd, rem.generic(), rem.generic_size());
 	}
 
 	bool Socket::listen(unsigned int backlog) {
@@ -57,10 +62,11 @@ namespace csono {
 
 	Connection Socket::accept() {
 		if(sock_fd != -1) {
-			Address retn_addr;
-			int retn_sock = ::accept(sock_fd, retn_addr.generic(), &retn_addr.size);
+			sockaddr recv_addr;  socklen_t recv_addr_size = 0;
+			::memset(&recv_addr, 0, sizeof(recv_addr));
+			int retn_sock = ::accept(sock_fd, &recv_addr, &recv_addr_size);
 			if(retn_sock == -1)  return Connection();
-			return Connection(retn_addr, retn_sock);
+			return Connection(Address(/* I don't know. I have no idea. */), retn_sock);
 		}
 		return Connection();
 	}
