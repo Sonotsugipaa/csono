@@ -16,10 +16,11 @@ namespace csono::test {
 	uint16_t try_bind(
 			Socket& socket,
 			uint16_t port = 10000,
-			uint16_t retries = 10
+			uint16_t retries = 10,
+			bool v6 = false
 	) {
 		std::cout << "Trying to bind socket fd#" << socket.fd() << " on port " << port << "..." << std::endl;
-		while(! socket.bind(port)) {
+		while(! socket.bind(Address(v6? "::" : "0.0.0.0", port))) {
 			if(retries == 0) {
 				std::cerr << "Failed to find a bindable port" << std::endl;
 				return 0;
@@ -32,46 +33,50 @@ namespace csono::test {
 	}
 
 
-	bool perform_udp(uint16_t port = 10000) {
-		Socket socket_in = Socket::Udp(AF_INET);
-		Socket socket_out = Socket::Udp(AF_INET);
+	bool perform_udp(uint16_t port = 10000, bool v6 = false) {
+		Socket socket_in = Socket::Udp(v6? AF_INET6 : AF_INET);
+		Socket socket_out = Socket::Udp(v6? AF_INET6 : AF_INET);
 		Address local_addr;
-		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';
+		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';  recv[3]='\0';
 
 		if(socket_in && socket_out) {
-			port = try_bind(socket_in, port);
-			local_addr = Address("localhost", port);
-			if(socket_out.connect(local_addr)) {
-				socket_out.write("lol", 3);
-				socket_in.read(recv, 3);  recv[3] = '\0';
+			port = try_bind(socket_in, port, 5, v6);
+			if(port != 0) {
+				local_addr = Address(v6? "::1" : "127.0.0.1", port);
+				if(socket_out.connect(local_addr)) {
+					socket_out.write("lol", 3);
+					socket_in.read(recv, 3);  recv[3] = '\0';
+				}
 			}
 		}
 
 		bool retn = (std::string(recv) == "lol");
-		std::cout << "UDP: " << (retn? "ok\n" : "no\n");
+		std::cout << "UDP v" << (v6? '6':'4') << ": " << (retn? "ok\n" : "no\n");
 		return retn;
 	}
 
 
-	bool perform_tcp(uint16_t port = 11000) {
-		Socket socket_in = Socket::Tcp(AF_INET);
-		Socket socket_out = Socket::Tcp(AF_INET);
+	bool perform_tcp(uint16_t port = 11000, bool v6 = false) {
+		Socket socket_in = Socket::Tcp(v6? AF_INET6 : AF_INET);
+		Socket socket_out = Socket::Tcp(v6? AF_INET6 : AF_INET);
 		Address local_addr;
-		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';
+		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';  recv[3]='\0';
 
 		if(socket_in && socket_out) {
-			port = try_bind(socket_in, port);
-			local_addr = Address("localhost", port);
-			socket_in.listen(4);
-			if(socket_out.connect(local_addr)) {
-				Connection conn = socket_in.accept();
-				socket_out.write("lol", 3);
-				conn.socket().read(recv, 3);  recv[3] = '\0';
+			port = try_bind(socket_in, port, 5, v6);
+			if(port != 0) {
+				local_addr = Address(v6? "::1" : "127.0.0.1", port);
+				socket_in.listen(4);
+				if(socket_out.connect(local_addr)) {
+					Connection conn = socket_in.accept();
+					socket_out.write("lol", 3);
+					conn.socket().read(recv, 3);  recv[3] = '\0';
+				}
 			}
 		}
 
 		bool retn = (std::string(recv) == "lol");
-		std::cout << "TCP: " << (retn? "ok\n" : "no\n");
+		std::cout << "TCP v" << (v6? '6':'4') << ": " << (retn? "ok\n" : "no\n");
 		return retn;
 	}
 
@@ -97,7 +102,6 @@ namespace csono::test {
 	void perform_addr() {
 		std::cout << "ADDRESS\n";
 		perform_addr("127.0.0.1",   "11000");
-		perform_addr("localhost",   "0");
 		perform_addr("192.169.1.3", "1");
 		perform_addr("invalid",     "http");
 		perform_addr("::1",         "http");
@@ -106,7 +110,9 @@ namespace csono::test {
 
 	bool perform() {
 		perform_addr();
-		return perform_udp() & perform_tcp();
+		return
+				perform_udp(10000, false) & perform_tcp(11000, false) &
+				perform_udp(12000, true)  & perform_tcp(13000, true);
 	}
 
 }

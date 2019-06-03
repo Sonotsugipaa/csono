@@ -18,12 +18,6 @@ namespace csono {
 			sock_fd(mov.sock_fd)
 	{ mov.sock_fd = -1; }
 
-	Socket::Tcp::Tcp(int af): Socket::Socket(af, SOCK_STREAM, IPPROTO_TCP) { }
-	Socket::Udp::Udp(int af): Socket::Socket(af, SOCK_DGRAM,  IPPROTO_UDP) { }
-
-	Socket::Tcp::Tcp(Address addr): Tcp::Tcp(addr.family()) { }
-	Socket::Udp::Udp(Address addr): Udp::Udp(addr.family()) { }
-
 
 	Socket::~Socket() {
 		if(sock_fd != -1) {
@@ -38,14 +32,9 @@ namespace csono {
 	}
 
 
-#pragma GCC warning "Socket::bind(uint16_t) only binds correctly on IPv4 sockets"
-	bool Socket::bind(uint16_t port) {
+	bool Socket::bind(Address local) {
 		if(sock_fd == -1)  return false;
-		sockaddr_in sin;
-		sin.sin_family = AF_INET;
-		sin.sin_addr.s_addr = ::htonl(INADDR_ANY);
-		sin.sin_port = ::htons(port);
-		return 0 == ::bind(sock_fd, (sockaddr*) &sin, sizeof(sockaddr_in));
+		return 0 == ::bind(sock_fd, local.generic(), local.generic_size());
 	}
 
 

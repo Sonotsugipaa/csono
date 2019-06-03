@@ -105,8 +105,16 @@ inline namespace csono {
 		Socket(int fd);
 
 	public:
+		/* Forward declarations for protocol-specific sockets;
+		 * they have no overloads, but they remove the need to
+		 * specify the address family, the type of socket and the
+		 * protocol parameter. */
 		class Tcp;
+		class Tcp4;
+		class Tcp6;
 		class Udp;
+		class Udp4;
+		class Udp6;
 
 		Socket(int addr_family, int socket_type, int protocol = 0);
 		Socket(const Socket &) = delete;
@@ -119,7 +127,7 @@ inline namespace csono {
 		constexpr operator bool () const { return sock_fd != -1; }
 		constexpr bool operator ! () const { return sock_fd == -1; }
 
-		bool bind(uint16_t port);
+		bool bind(Address bind_to);
 
 		bool listen(unsigned int backlog);
 		bool connect(Address remote_host);
@@ -137,14 +145,28 @@ inline namespace csono {
 
 	class Socket::Tcp : public Socket {
 	public:
-		Tcp(int addr_family);
-		Tcp(Address);
+		Tcp(int addr_family): Socket::Socket(addr_family, SOCK_STREAM, IPPROTO_TCP) { }
+	};
+	class Socket::Tcp4 : public Socket {
+	public:
+		Tcp4(): Socket::Socket(AF_INET,  SOCK_STREAM, IPPROTO_TCP) { }
+	};
+	class Socket::Tcp6 : public Socket {
+	public:
+		Tcp6(): Socket::Socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP) { }
 	};
 
 	class Socket::Udp : public Socket {
 	public:
-		Udp(int addr_family);
-		Udp(Address);
+		Udp(int addr_family): Socket::Socket(addr_family, SOCK_DGRAM,  IPPROTO_UDP) { }
+	};
+	class Socket::Udp4 : public Socket {
+	public:
+		Udp4(): Socket::Socket(AF_INET,  SOCK_DGRAM,  IPPROTO_UDP) { }
+	};
+	class Socket::Udp6 : public Socket {
+	public:
+		Udp6(): Socket::Socket(AF_INET6, SOCK_DGRAM,  IPPROTO_UDP) { }
 	};
 
 
@@ -181,7 +203,7 @@ inline namespace csono {
 		uint16_t backlog;
 
 	public:
-		Listener(Socket&& socket, uint16_t port, unsigned int backlog = SOCKET_BACKLOG_DEFAULT);
+		Listener(Socket&& socket, Address bind_to, unsigned int backlog = SOCKET_BACKLOG_DEFAULT);
 		Listener(const Listener &) = delete;
 		Listener(Listener&&) = default;
 
