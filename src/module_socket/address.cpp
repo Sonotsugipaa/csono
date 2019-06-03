@@ -27,15 +27,6 @@ namespace csono {
 		}
 
 
-		#pragma GCC warning "temporary debug function"
-		inline std::string debug_addrinfo(const addrinfo & ai) {
-			return
-					std::string("AF")+std::to_string(ai.ai_family) +
-					" LEN"+std::to_string(ai.ai_addrlen) +
-					" NAME:"+(ai.ai_canonname == nullptr? "null" : ai.ai_canonname);
-		}
-
-
 		void addrinfo_list_to_array(
 				Address::NodeArray& array,
 				const addrinfo * ai
