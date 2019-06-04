@@ -14,11 +14,14 @@ build/%.o: src/module_%/makefile
 	make --file=$< $@
 
 build/%.o: src/module_%/compile.cpp
-	g++ $(CPPFLAGS) -I$(dir $<) -c -o$@ $<
+	g++ $(CPPFLAGS) $(OBJFLAGS) -I$(dir $<) -c -o$@ $<
 
-bin/%: src/%.cpp $(ALL_OBJS)
-	g++ $(CPPFLAGS) -o$@ $^ $(LIBS)
+lib/libcsono.a: $(ALL_OBJS)
+	ar -rvs $@ $^
+
+bin/%: src/%.cpp lib/libcsono.a $(ALL_OBJS)
+	g++ $(CPPFLAGS) -o$@ $< -lcsono $(LIBS)
 
 reset:
-	rm -rf bin build
-	mkdir bin build
+	rm -rf bin build lib
+	mkdir bin build lib
