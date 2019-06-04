@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-#define DEBUG_IOSTREAM
+#define DEBUG_IOSTREAM__NO
 #ifdef DEBUG_IOSTREAM
 	#pragma GCC warning "debug iostream"
 	#include <iostream>
@@ -27,7 +27,6 @@ namespace csono {
 		}
 
 
-		#pragma GCC warning "something seems to be wrong with the list copy..."
 		void addrinfo_list_to_array(
 				Address::NodeArray& array,
 				const addrinfo * ai

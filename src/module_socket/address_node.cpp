@@ -71,15 +71,17 @@ namespace csono {
 	Address::Node::Node():
 			flags(0),
 			family(AF_UNSPEC),
+			protocol(IPPROTO_IP),
 			addr_len(0),
 			addr(nullptr),
 			name(std::string()),
-			fullname("null")
+			fullname(std::string())
 	{ }
 
 	Address::Node::Node(const addrinfo & ai):
 			flags(ai.ai_flags),
 			family(ai.ai_family),
+			protocol(ai.ai_protocol),
 			addr_len(ai.ai_addrlen),
 			addr(clone_sockaddr(ai.ai_addr, ai.ai_addrlen)),
 			name(get_hostname(&ai)),
@@ -92,6 +94,7 @@ namespace csono {
 	Address::Node::Node(const Node & cpy):
 			flags(cpy.flags),
 			family(cpy.family),
+			protocol(cpy.protocol),
 			addr_len(cpy.addr_len),
 			addr(clone_sockaddr(cpy.addr, cpy.addr_len)),
 			name(cpy.name),
@@ -104,6 +107,7 @@ namespace csono {
 	Address::Node::Node(Node&& mov):
 			flags(std::move(mov.flags)),
 			family(std::move(mov.family)),
+			protocol(std::move(mov.protocol)),
 			addr_len(std::move(mov.addr_len)),
 			addr(mov.addr),
 			name(std::move(mov.name)),
@@ -121,6 +125,7 @@ namespace csono {
 
 		flags = cpy.flags;
 		family = cpy.family;
+		protocol = cpy.protocol;
 		addr_len = cpy.addr_len;
 		addr = clone_sockaddr(cpy.addr, cpy.addr_len);
 		name = cpy.name;
@@ -136,6 +141,7 @@ namespace csono {
 
 		flags = std::move(mov.flags);
 		family = std::move(mov.family);
+		protocol = std::move(mov.protocol);
 		addr_len = std::move(mov.addr_len);
 		addr = std::move(mov.addr);
 		name = std::move(mov.name);
