@@ -5,7 +5,7 @@ export ALL_EXES=$(patsubst src/%.cpp,bin/%,$(wildcard src/*.cpp))
 export LIBS=#no-lib#
 
 # objects should not be removed automatically
-.PRECIOUS: build/%.o
+.PHONY: build/%.o
 
 
 all: $(ALL_EXES)
