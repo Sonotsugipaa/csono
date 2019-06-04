@@ -5,7 +5,9 @@ export ALL_EXES=$(patsubst src/%.cpp,bin/%,$(wildcard src/*.cpp))
 export LIBS=#no-lib#
 
 # objects should not be removed automatically
-.PRECIOUS: build/%.o
+.PHONY: build/%.o
+.PHONY: install
+.PHONY: uninstall
 
 
 all: $(ALL_EXES)
@@ -14,11 +16,33 @@ build/%.o: src/module_%/makefile
 	make --file=$< $@
 
 build/%.o: src/module_%/compile.cpp
-	g++ $(CPPFLAGS) -I$(dir $<) -c -o$@ $<
+	g++ $(CPPFLAGS) $(OBJFLAGS) -I$(dir $<) -c -o$@ $<
 
-bin/%: src/%.cpp $(ALL_OBJS)
-	g++ $(CPPFLAGS) -o$@ $^ $(LIBS)
+lib/libcsono.a: $(ALL_OBJS)
+	ar -rvs $@ $^
+
+bin/%: src/%.cpp lib/libcsono.a $(ALL_OBJS)
+	g++ $(CPPFLAGS) -o$@ $< -lcsono $(LIBS)
+
+install: lib/libcsono.a
+	# --------------------------------------#
+	# Installing the library in /usr/local/ #
+	# --------------------------------------#
+	sudo mkdir -p /usr/local/include/csono
+	sudo cp -rf include/csono/. /usr/local/include/csono/.
+	sudo cp -f lib/libcsono.a /usr/local/lib/libcsono.a
+
+uninstall:
+	# ------------------------------------#
+	# Removing the library in /usr/local/ #
+	# ------------------------------------#
+	sudo rm -r /usr/local/include/csono
+	sudo rm /usr/local/lib/libcsono.a
+
+clean:
+	rm -rf bin lib
+	mkdir bin lib
 
 reset:
-	rm -rf bin build
-	mkdir bin build
+	rm -rf bin build lib
+	mkdir bin build lib
