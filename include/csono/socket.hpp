@@ -36,6 +36,7 @@ inline namespace csono {
 		struct Node {
 			int flags;
 			int family;
+			int protocol;
 			socklen_t addr_len;
 			sockaddr* addr;
 			std::string name;
@@ -75,6 +76,7 @@ inline namespace csono {
 		{ }
 
 		inline int family() const { return nodes.ptr->family; }
+		inline int protocol() const { return nodes.ptr->protocol; }
 
 		inline const std::string & hostname() const { return nodes.ptr->name; }
 		uint16_t port() const;

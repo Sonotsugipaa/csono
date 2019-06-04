@@ -83,8 +83,8 @@ namespace csono::test {
 	std::string addr_out(Address addr) {
 		return
 				addr.fullname() +
-				", " + std::to_string(addr.family()) +
-				", " + std::to_string(addr.generic_size());
+				", fam(" + std::to_string(addr.family()) +
+				"), proto(" + std::to_string(addr.protocol()) + ')';
 	}
 
 	void perform_addr(const char * host, const char * service) {
