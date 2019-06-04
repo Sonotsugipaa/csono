@@ -39,11 +39,11 @@ privileges on <code>rm</code>.
 ## Compiling and building
 
 All the module object files (and test programs) can be compiled with the
-<code>all</code> GNU Make default target, i.e. by using the <code>make</code>
-shell command (note that this also installs the library on your system).
+<code>all</code> GNU Make target, i.e. by using the <code>make all</code>
+shell command.
 <br/>
-To compile a single module, run
-<code>make build/<i>[name]</i>.o</code>.
+To compile a single module, run <code>make build/<i>[name]</i>.o</code>;
 <br/>
-To link a single test program, run
-<code>make bin/<i>name</i></code>.
+To link a single test program, run <code>make bin/<i>name</i></code>;
+<br/>
+To compile the static library, run <code>make lib/libcsono.a</code>.
