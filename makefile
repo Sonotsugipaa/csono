@@ -10,7 +10,7 @@ export LIBS=#no-lib#
 .PHONY: uninstall
 
 
-all: $(ALL_EXES)
+all: $(ALL_EXES) install
 
 build/%.o: src/module_%/makefile
 	make --file=$< $@
