@@ -22,6 +22,10 @@ lib/libcsono.a: $(ALL_OBJS)
 bin/%: src/%.cpp lib/libcsono.a $(ALL_OBJS)
 	g++ $(CPPFLAGS) -o$@ $< -lcsono $(LIBS)
 
+clean:
+	rm -rf bin lib
+	mkdir bin lib
+
 reset:
 	rm -rf bin build lib
 	mkdir bin build lib
