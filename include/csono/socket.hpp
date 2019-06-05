@@ -36,6 +36,7 @@ inline namespace csono {
 		struct Node {
 			int flags;
 			int family;
+			int socket_type;
 			int protocol;
 			socklen_t addr_len;
 			sockaddr* addr;
@@ -66,6 +67,9 @@ inline namespace csono {
 	private:
 		NodeArray nodes;
 
+		// Only meant to be used by Socket::accept()
+		Address(const sockaddr &, socklen_t, int socktype, int protocol);
+
 	public:
 		Address();
 		Address(Node);
@@ -75,26 +79,34 @@ inline namespace csono {
 				Address::Address(host, std::to_string(port).c_str())
 		{ }
 
-		inline int family() const { return nodes.ptr->family; }
-		inline int protocol() const { return nodes.ptr->protocol; }
+		constexpr int family() const { return nodes.ptr->family; }
+		constexpr int socketType() const { return nodes.ptr->socket_type; }
+		constexpr int protocol() const { return nodes.ptr->protocol; }
 
 		inline const std::string & hostname() const { return nodes.ptr->name; }
 		uint16_t port() const;
 		inline const std::string & fullname() const { return nodes.ptr->fullname; }
 		inline operator std::string () const { return fullname(); }
 
-		inline operator bool () const { return nodes.ptr != nullptr; }
-		inline bool operator ! () const { return nodes.ptr == nullptr; }
+		constexpr operator bool () const { return nodes.ptr != nullptr; }
+		constexpr bool operator ! () const { return nodes.ptr == nullptr; }
 
-		inline sockaddr* generic() { return nodes.ptr->addr; }
-		inline const sockaddr * generic() const { return nodes.ptr->addr; }
-		inline socklen_t generic_size() const { return nodes.ptr->addr_len; }
+		constexpr sockaddr* generic() { return nodes.ptr->addr; }
+		constexpr const sockaddr * generic() const { return nodes.ptr->addr; }
+		constexpr socklen_t generic_size() const { return nodes.ptr->addr_len; }
 
 		inline Address operator [] (unsigned i) const {
 			if(i > nodes.size)  return Address();
 			return Address(nodes.ptr[i]);
 		};
 		constexpr unsigned size() const { return nodes.size; }
+
+		constexpr bool operator == (const Address & r) {
+			return
+					(socketType() == r.socketType()) &&
+					(fullname() == r.fullname());
+		}
+		constexpr bool operator != (const Address & r) { return ! (*this == r); }
 
 	};
 
@@ -103,6 +115,10 @@ inline namespace csono {
 		friend Connection;
 	private:
 		int sock_fd = -1;
+		int sock_type;
+		int sock_protocol;
+		Address bound_addr;
+		Address connected_addr;
 
 		Socket(int fd);
 
@@ -135,6 +151,10 @@ inline namespace csono {
 		bool connect(Address remote_host);
 
 		constexpr int fd() const { return sock_fd; }
+		constexpr int type() const { return sock_type; }
+		constexpr int protocol() const { return sock_protocol; }
+		constexpr const Address & boundAddress() const { return bound_addr; }
+		constexpr const Address & connectedAddress() const { return connected_addr; }
 
 		Connection accept();
 

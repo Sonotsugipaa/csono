@@ -33,17 +33,24 @@ namespace csono::test {
 	}
 
 
+	void out_cmp_sock(const Socket & socket_i, const Socket & socket_o) {
+		std::cout
+				<< " >> \""   << socket_i.boundAddress().socketType()
+				<< ", "       << socket_i.boundAddress().fullname()
+				<< "\" vs \"" << socket_o.connectedAddress().socketType()
+				<< ", "       << socket_o.connectedAddress().fullname() << '"' << std::endl;
+	}
+
+
 	bool perform_udp(uint16_t port = 10000, bool v6 = false) {
 		Socket socket_in = Socket::Udp(v6? AF_INET6 : AF_INET);
 		Socket socket_out = Socket::Udp(v6? AF_INET6 : AF_INET);
-		Address local_addr;
 		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';  recv[3]='\0';
 
 		if(socket_in && socket_out) {
 			port = try_bind(socket_in, port, 5, v6);
 			if(port != 0) {
-				local_addr = Address(v6? "::1" : "127.0.0.1", port);
-				if(socket_out.connect(local_addr)) {
+				if(socket_out.connect(Address(v6? "::1" : "127.0.0.1", port))) {
 					socket_out.write("lol", 3);
 					socket_in.read(recv, 3);  recv[3] = '\0';
 				}
@@ -51,6 +58,11 @@ namespace csono::test {
 		}
 
 		bool retn = (std::string(recv) == "lol");
+		if(socket_in.boundAddress() != socket_out.connectedAddress()) {
+			std::cout << " >> input/output socket addresses mismatch\n";
+			retn = false;
+		}
+		out_cmp_sock(socket_in, socket_out);
 		std::cout << "UDP v" << (v6? '6':'4') << ": " << (retn? "ok\n" : "no\n");
 		return retn;
 	}
@@ -59,15 +71,13 @@ namespace csono::test {
 	bool perform_tcp(uint16_t port = 11000, bool v6 = false) {
 		Socket socket_in = Socket::Tcp(v6? AF_INET6 : AF_INET);
 		Socket socket_out = Socket::Tcp(v6? AF_INET6 : AF_INET);
-		Address local_addr;
 		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';  recv[3]='\0';
 
 		if(socket_in && socket_out) {
 			port = try_bind(socket_in, port, 5, v6);
 			if(port != 0) {
-				local_addr = Address(v6? "::1" : "127.0.0.1", port);
 				socket_in.listen(4);
-				if(socket_out.connect(local_addr)) {
+				if(socket_out.connect(Address(v6? "::1" : "127.0.0.1", port))) {
 					Connection conn = socket_in.accept();
 					socket_out.write("lol", 3);
 					conn.socket().read(recv, 3);  recv[3] = '\0';
@@ -76,6 +86,11 @@ namespace csono::test {
 		}
 
 		bool retn = (std::string(recv) == "lol");
+		if(socket_in.boundAddress() != socket_out.connectedAddress()) {
+			std::cout << " >> input/output socket addresses mismatch\n";
+			retn = false;
+		}
+		out_cmp_sock(socket_in, socket_out);
 		std::cout << "TCP v" << (v6? '6':'4') << ": " << (retn? "ok\n" : "no\n");
 		return retn;
 	}
@@ -99,18 +114,30 @@ namespace csono::test {
 		std::cout << '\n'<<std::endl;
 	}
 
-	void perform_addr() {
+	bool perform_addr_cmp(Address&& addr1, Address&& addr2, bool expect) {
+		std::cout
+				<< "ADDRESS - comparing "<<addr1.fullname()<<" ("<<addr1.socketType()
+				<< ") with "<<addr2.fullname()<<" ("<<addr2.socketType()<<")\n";
+		expect = (expect == (addr1 == addr2));
+		std::cout << (expect? "SUCCESS":"FAILURE") << std::endl;
+		return expect;
+	}
+
+	bool perform_addr() {
 		std::cout << "ADDRESS\n";
 		perform_addr("127.0.0.1",   "11000");
 		perform_addr("192.169.1.3", "1");
 		perform_addr("invalid",     "http");
 		perform_addr("::1",         "http");
+		return
+				perform_addr_cmp(Address("127.0.0.1","http"), Address("::1","http"), false) &&
+				perform_addr_cmp(Address("127.0.0.1","4"), Address("127.0.0.1","4"), true);
 	}
 
 
 	bool perform() {
-		perform_addr();
 		return
+				perform_addr() &&
 				perform_udp(10000, false) & perform_tcp(11000, false) &
 				perform_udp(12000, true)  & perform_tcp(13000, true);
 	}
