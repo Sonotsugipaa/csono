@@ -4,6 +4,9 @@
 #include <thread>
 #include <chrono>
 
+#define OK "\033[1;94mOK\033[m"
+#define NO "\033[1;91mNO\033[m"
+
 
 
 namespace csono::test {
@@ -63,7 +66,7 @@ namespace csono::test {
 			retn = false;
 		}
 		out_cmp_sock(socket_in, socket_out);
-		std::cout << "UDP v" << (v6? '6':'4') << ": " << (retn? "ok\n" : "no\n");
+		std::cout << "UDP v" << (v6? '6':'4') << ": " << (retn? OK"\n" : NO"\n");
 		return retn;
 	}
 
@@ -91,7 +94,7 @@ namespace csono::test {
 			retn = false;
 		}
 		out_cmp_sock(socket_in, socket_out);
-		std::cout << "TCP v" << (v6? '6':'4') << ": " << (retn? "ok\n" : "no\n");
+		std::cout << "TCP v" << (v6? '6':'4') << ": " << (retn? OK"\n" : NO"\n");
 		return retn;
 	}
 
