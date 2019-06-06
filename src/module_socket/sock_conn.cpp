@@ -101,12 +101,12 @@ namespace csono {
 
 	ssize_t Socket::read(void* dest, size_t max, unsigned int flags) {
 		if(sock_fd == -1)  return -1;
-		return ::recv(sock_fd, dest, max, flags);
+		return ::recv(sock_fd, dest, max, flags | MSG_NOSIGNAL);
 	}
 
 	ssize_t Socket::write(const void * src, size_t size, unsigned int flags) {
 		if(sock_fd == -1)  return -1;
-		return ::send(sock_fd, src, size, flags);
+		return ::send(sock_fd, src, size, flags | MSG_NOSIGNAL);
 	}
 
 }
