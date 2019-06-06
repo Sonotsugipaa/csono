@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 
+#define SIGNATURE_PREFIX_LENGTH 5
+
 
 
 inline namespace csono {
@@ -14,6 +16,7 @@ inline namespace csono {
 
 	public:
 		constexpr Signature(uint32_t value = 0): value(value) { }
+		constexpr Signature(int value): Signature((uint32_t) value) { }
 
 		constexpr Signature(const char * cstr):
 				value(0)
@@ -28,8 +31,6 @@ inline namespace csono {
 
 		inline Signature(const std::string & str): Signature(str.c_str()) { }
 
-		~Signature() { value = 0; }
-
 		constexpr operator uint32_t() const { return value; }
 
 		inline operator std::string() const {
@@ -41,7 +42,10 @@ inline namespace csono {
 			return str;
 		}
 
-		constexpr bool operator == (uint32_t r) const { return value == r; }
+		constexpr bool operator == (Signature r) const { return value == r.value; }
+		constexpr bool operator != (Signature r) const { return value != r.value; }
+		constexpr bool operator == (int r) const { return value == (uint32_t) r; }
+		constexpr bool operator != (int r) const { return value != (uint32_t) r; }
 	};
 
 
