@@ -6,10 +6,10 @@
 
 namespace csono {
 
-	Socket::Socket(int fd):
+	Socket::Socket(int fd, Address local, Address remote):
 			sock_fd(fd),
 			sock_type(0), sock_protocol(0),
-			bound_addr(), connected_addr()
+			bound_addr(std::move(local)), connected_addr(std::move(remote))
 	{ }
 
 	Socket::Socket(int addr_type, int socket_type, int protocol):
@@ -75,19 +75,24 @@ namespace csono {
 	}
 
 
-	Connection Socket::accept() {
+	Socket Socket::accept() {
 		if(sock_fd != -1) {
 			sockaddr recv_addr;
 			socklen_t recv_addr_size = sizeof(sockaddr);
 			::memset(&recv_addr, 0, sizeof(sockaddr));
 			int retn_sock = ::accept(sock_fd, &recv_addr, &recv_addr_size);
-			if(retn_sock == -1)  return Connection();
+			if(retn_sock == -1)  return Socket(-1);
 			connected_addr = Address(recv_addr, recv_addr_size, type(), protocol());
-			return Connection(
-					Address(recv_addr, recv_addr_size, bound_addr.socketType(), bound_addr.protocol()),
-					retn_sock );
+			return Socket(
+					retn_sock,
+					boundAddress(),
+					Address(
+						recv_addr,  recv_addr_size,
+						bound_addr.socketType(),
+						bound_addr.protocol()
+					) );
 		}
-		return Connection();
+		return Socket(-1);
 	}
 
 
@@ -96,12 +101,12 @@ namespace csono {
 
 	ssize_t Socket::read(void* dest, size_t max, unsigned int flags) {
 		if(sock_fd == -1)  return -1;
-		return ::recv(sock_fd, dest, max, flags);
+		return ::recv(sock_fd, dest, max, flags | MSG_NOSIGNAL);
 	}
 
 	ssize_t Socket::write(const void * src, size_t size, unsigned int flags) {
 		if(sock_fd == -1)  return -1;
-		return ::send(sock_fd, src, size, flags);
+		return ::send(sock_fd, src, size, flags | MSG_NOSIGNAL);
 	}
 
 }

@@ -13,7 +13,7 @@ namespace csono {
 	}
 
 
-	Connection Listener::accept() {
+	Socket Listener::accept() {
 		return passive_socket.accept();
 	}
 

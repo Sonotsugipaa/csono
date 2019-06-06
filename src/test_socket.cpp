@@ -4,6 +4,8 @@
 #include <thread>
 #include <chrono>
 
+#include <cerrno>
+
 #define OK "\033[1;94mOK\033[m"
 #define NO "\033[1;91mNO\033[m"
 
@@ -81,11 +83,16 @@ namespace csono::test {
 			if(port != 0) {
 				socket_in.listen(4);
 				if(socket_out.connect(Address(v6? "::1" : "127.0.0.1", port))) {
-					Connection conn = socket_in.accept();
+					Socket conn = socket_in.accept();
 					socket_out.write("lol", 3);
-					conn.socket().read(recv, 3);  recv[3] = '\0';
+					conn.read(recv, 3);  recv[3] = '\0';
 				}
 			}
+		}
+
+		if(errno != 0) {
+			std::cout << "ERRNO " << errno << std::endl;
+			errno = 0;
 		}
 
 		bool retn = (std::string(recv) == "lol");
