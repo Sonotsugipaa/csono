@@ -24,12 +24,10 @@ extern "C" {
 inline namespace csono {
 
 	class Socket;
-	class Connection;
 	class Listener;
 
 
 	class Address {
-		friend Connection;
 		friend Socket;
 
 	public:
@@ -112,7 +110,6 @@ inline namespace csono {
 
 
 	class Socket {
-		friend Connection;
 	private:
 		int sock_fd = -1;
 		int sock_type;
@@ -193,33 +190,6 @@ inline namespace csono {
 	class Socket::Udp6 : public Socket {
 	public:
 		Udp6(): Socket::Socket(AF_INET6, SOCK_DGRAM,  IPPROTO_UDP) { }
-	};
-
-
-	class Connection {
-		friend Listener;
-		friend Socket;
-	public:
-		using unique_t = uid::Uid<Connection>;
-		using uid_t = unique_t::key_t;
-
-	private:
-		Address _address;
-		Socket _remote_socket;
-		unique_t _unique;
-
-		Connection(Address address, int socket_fd);
-
-	public:
-		Connection();
-		Connection(const Connection &) = delete;
-		Connection(Connection&&) = default;
-		constexpr operator bool () const   { return   _remote_socket; }
-		constexpr bool operator ! () const { return ! _remote_socket; }
-		inline Address address() const { return _address; }
-		inline Socket& socket() { return _remote_socket; }
-		inline const Socket & socket() const { return _remote_socket; }
-		inline uid_t uid() const { return _unique.uid(); }
 	};
 
 

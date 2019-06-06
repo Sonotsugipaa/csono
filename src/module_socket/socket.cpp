@@ -110,17 +110,3 @@ namespace csono {
 	}
 
 }
-
-
-#pragma GCC warning "connection structure isn't needed, since sockets now have bound/connected addresses"
-namespace csono {
-
-	Connection::Connection():
-			_address(), _remote_socket(-1), _unique()
-	{ }
-
-	Connection::Connection(Address address, int sock_fd):
-			_address(address), _remote_socket(sock_fd), _unique()
-	{ }
-
-}
