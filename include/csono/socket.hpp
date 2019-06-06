@@ -120,7 +120,7 @@ inline namespace csono {
 		Address bound_addr;
 		Address connected_addr;
 
-		Socket(int fd);
+		explicit Socket(int fd, Address local = Address(), Address remote = Address());
 
 	public:
 		/* Forward declarations for protocol-specific sockets;
@@ -134,7 +134,11 @@ inline namespace csono {
 		class Udp4;
 		class Udp6;
 
-		Socket(int addr_family, int socket_type, int protocol = 0);
+		/* Default constructor creates an invalid socket;
+		 * use the specialized UDP or TCP classes */
+		Socket(): Socket(-1) { }
+
+		explicit Socket(int addr_family, int socket_type, int protocol = 0);
 		Socket(const Socket &) = delete;
 		Socket(Socket&&);
 		~Socket();
@@ -156,7 +160,7 @@ inline namespace csono {
 		constexpr const Address & boundAddress() const { return bound_addr; }
 		constexpr const Address & connectedAddress() const { return connected_addr; }
 
-		Connection accept();
+		Socket accept();
 
 		void close();
 
@@ -235,7 +239,7 @@ inline namespace csono {
 		Listener& operator = (const Listener &) = delete;
 		Listener& operator = (Listener&&);
 
-		Connection accept();
+		Socket accept();
 	};
 
 }
