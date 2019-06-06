@@ -55,10 +55,10 @@ namespace csono::test {
 		if(socket_in && socket_out) {
 			port = try_bind(socket_in, port, 5, v6);
 			if(port != 0) {
-				if(socket_out.connect(Address(v6? "::1" : "127.0.0.1", port))) {
-					socket_out.write("lol", 3);
-					socket_in.read(recv, 3);  recv[3] = '\0';
-				}
+				Address addr;
+				socket_out.write(Address(v6? "::1" : "127.0.0.1", port), "lol", 3);
+				socket_in.read(addr, recv, 3);  recv[3] = '\0';
+				std::cout << "UDP address received: " << addr.fullname() << '\n';
 			}
 		}
 

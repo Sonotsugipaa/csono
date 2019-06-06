@@ -101,12 +101,39 @@ namespace csono {
 
 	ssize_t Socket::read(void* dest, size_t max, unsigned int flags) {
 		if(sock_fd == -1)  return -1;
-		return ::recv(sock_fd, dest, max, flags | MSG_NOSIGNAL);
+		return ::recv(
+				sock_fd,
+				dest, max,
+				flags | MSG_NOSIGNAL );
 	}
 
 	ssize_t Socket::write(const void * src, size_t size, unsigned int flags) {
 		if(sock_fd == -1)  return -1;
-		return ::send(sock_fd, src, size, flags | MSG_NOSIGNAL);
+		return ::send(
+				sock_fd,
+				src, size,
+				flags | MSG_NOSIGNAL );
+	}
+
+	ssize_t Socket::read(Address& addr, void* dest, size_t max, unsigned int flags) {
+		sockaddr sa;   socklen_t sa_len = sizeof(sockaddr);
+		if(sock_fd == -1)  return -1;
+		ssize_t retn = ::recvfrom(
+				sock_fd,
+				dest, max,
+				flags | MSG_NOSIGNAL,
+				&sa, &sa_len );
+		addr = Address(sa, sa_len, addr.socketType(), addr.protocol());
+		return retn;
+	}
+
+	ssize_t Socket::write(Address addr, const void * src, size_t size, unsigned int flags) {
+		if(sock_fd == -1)  return -1;
+		return ::sendto(
+				sock_fd,
+				src, size,
+				flags | MSG_NOSIGNAL,
+				addr.generic(), addr.generic_size() );
 	}
 
 }

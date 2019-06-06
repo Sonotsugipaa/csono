@@ -65,7 +65,9 @@ inline namespace csono {
 	private:
 		NodeArray nodes;
 
-		// Only meant to be used by Socket::accept()
+		/* Only meant to be used by Socket::accept() and Socket::read(...);
+		 * the constructor makes a hard copy of the sockaddr, so
+		 * the first argument may point to temporary data. */
 		Address(const sockaddr &, socklen_t, int socktype, int protocol);
 
 	public:
@@ -163,6 +165,9 @@ inline namespace csono {
 
 		ssize_t  read(void* dest, size_t max, unsigned int flags = 0);
 		ssize_t write(const void * src, size_t size, unsigned int flags = 0);
+
+		ssize_t  read(Address& remote, void* dest, size_t max, unsigned int flags = 0);
+		ssize_t write(Address remote, const void * src, size_t size, unsigned int flags = 0);
 	};
 
 
