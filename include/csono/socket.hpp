@@ -24,18 +24,18 @@ extern "C" {
 inline namespace csono {
 
 	class Socket;
-	class Connection;
 	class Listener;
 
 
 	class Address {
-		friend Connection;
 		friend Socket;
 
 	public:
 		struct Node {
 			int flags;
 			int family;
+			int socket_type;
+			int protocol;
 			socklen_t addr_len;
 			sockaddr* addr;
 			std::string name;
@@ -65,6 +65,9 @@ inline namespace csono {
 	private:
 		NodeArray nodes;
 
+		// Only meant to be used by Socket::accept()
+		Address(const sockaddr &, socklen_t, int socktype, int protocol);
+
 	public:
 		Address();
 		Address(Node);
@@ -74,19 +77,21 @@ inline namespace csono {
 				Address::Address(host, std::to_string(port).c_str())
 		{ }
 
-		inline int family() const { return nodes.ptr->family; }
+		constexpr int family() const { return nodes.ptr->family; }
+		constexpr int socketType() const { return nodes.ptr->socket_type; }
+		constexpr int protocol() const { return nodes.ptr->protocol; }
 
 		inline const std::string & hostname() const { return nodes.ptr->name; }
 		uint16_t port() const;
 		inline const std::string & fullname() const { return nodes.ptr->fullname; }
 		inline operator std::string () const { return fullname(); }
 
-		inline operator bool () const { return nodes.ptr != nullptr; }
-		inline bool operator ! () const { return nodes.ptr == nullptr; }
+		constexpr operator bool () const { return nodes.ptr != nullptr; }
+		constexpr bool operator ! () const { return nodes.ptr == nullptr; }
 
-		inline sockaddr* generic() { return nodes.ptr->addr; }
-		inline const sockaddr * generic() const { return nodes.ptr->addr; }
-		inline socklen_t generic_size() const { return nodes.ptr->addr_len; }
+		constexpr sockaddr* generic() { return nodes.ptr->addr; }
+		constexpr const sockaddr * generic() const { return nodes.ptr->addr; }
+		constexpr socklen_t generic_size() const { return nodes.ptr->addr_len; }
 
 		inline Address operator [] (unsigned i) const {
 			if(i > nodes.size)  return Address();
@@ -94,15 +99,25 @@ inline namespace csono {
 		};
 		constexpr unsigned size() const { return nodes.size; }
 
+		constexpr bool operator == (const Address & r) {
+			return
+					(socketType() == r.socketType()) &&
+					(fullname() == r.fullname());
+		}
+		constexpr bool operator != (const Address & r) { return ! (*this == r); }
+
 	};
 
 
 	class Socket {
-		friend Connection;
 	private:
 		int sock_fd = -1;
+		int sock_type;
+		int sock_protocol;
+		Address bound_addr;
+		Address connected_addr;
 
-		Socket(int fd);
+		explicit Socket(int fd, Address local = Address(), Address remote = Address());
 
 	public:
 		/* Forward declarations for protocol-specific sockets;
@@ -116,7 +131,11 @@ inline namespace csono {
 		class Udp4;
 		class Udp6;
 
-		Socket(int addr_family, int socket_type, int protocol = 0);
+		/* Default constructor creates an invalid socket;
+		 * use the specialized UDP or TCP classes */
+		Socket(): Socket(-1) { }
+
+		explicit Socket(int addr_family, int socket_type, int protocol = 0);
 		Socket(const Socket &) = delete;
 		Socket(Socket&&);
 		~Socket();
@@ -133,8 +152,12 @@ inline namespace csono {
 		bool connect(Address remote_host);
 
 		constexpr int fd() const { return sock_fd; }
+		constexpr int type() const { return sock_type; }
+		constexpr int protocol() const { return sock_protocol; }
+		constexpr const Address & boundAddress() const { return bound_addr; }
+		constexpr const Address & connectedAddress() const { return connected_addr; }
 
-		Connection accept();
+		Socket accept();
 
 		void close();
 
@@ -170,33 +193,6 @@ inline namespace csono {
 	};
 
 
-	class Connection {
-		friend Listener;
-		friend Socket;
-	public:
-		using unique_t = uid::Uid<Connection>;
-		using uid_t = unique_t::key_t;
-
-	private:
-		Address _address;
-		Socket _remote_socket;
-		unique_t _unique;
-
-		Connection(Address address, int socket_fd);
-
-	public:
-		Connection();
-		Connection(const Connection &) = delete;
-		Connection(Connection&&) = default;
-		constexpr operator bool () const   { return   _remote_socket; }
-		constexpr bool operator ! () const { return ! _remote_socket; }
-		inline Address address() const { return _address; }
-		inline Socket& socket() { return _remote_socket; }
-		inline const Socket & socket() const { return _remote_socket; }
-		inline uid_t uid() const { return _unique.uid(); }
-	};
-
-
 	class Listener {
 	private:
 		Socket passive_socket;
@@ -213,7 +209,7 @@ inline namespace csono {
 		Listener& operator = (const Listener &) = delete;
 		Listener& operator = (Listener&&);
 
-		Connection accept();
+		Socket accept();
 	};
 
 }
