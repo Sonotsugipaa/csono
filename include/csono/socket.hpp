@@ -65,7 +65,9 @@ inline namespace csono {
 	private:
 		NodeArray nodes;
 
-		// Only meant to be used by Socket::accept()
+		/* Only meant to be used by Socket::accept() and Socket::read(...);
+		 * the constructor makes a hard copy of the sockaddr, so
+		 * the first argument may point to temporary data. */
 		Address(const sockaddr &, socklen_t, int socktype, int protocol);
 
 	public:
@@ -86,8 +88,8 @@ inline namespace csono {
 		inline const std::string & fullname() const { return nodes.ptr->fullname; }
 		inline operator std::string () const { return fullname(); }
 
-		constexpr operator bool () const { return nodes.ptr != nullptr; }
-		constexpr bool operator ! () const { return nodes.ptr == nullptr; }
+		constexpr operator bool () const { return nodes.size != 0; }
+		constexpr bool operator ! () const { return nodes.size == 0; }
 
 		constexpr sockaddr* generic() { return nodes.ptr->addr; }
 		constexpr const sockaddr * generic() const { return nodes.ptr->addr; }
@@ -154,7 +156,12 @@ inline namespace csono {
 		constexpr int fd() const { return sock_fd; }
 		constexpr int type() const { return sock_type; }
 		constexpr int protocol() const { return sock_protocol; }
+		constexpr const Address & localAddr() const { return bound_addr; }
+		constexpr const Address & remoteAddr() const { return connected_addr; }
+		
+		[[deprecated("discontinued name; use localAddr() instead")]]
 		constexpr const Address & boundAddress() const { return bound_addr; }
+		[[deprecated("discontinued name; use remoteAddr() instead")]]
 		constexpr const Address & connectedAddress() const { return connected_addr; }
 
 		Socket accept();
@@ -163,12 +170,17 @@ inline namespace csono {
 
 		ssize_t  read(void* dest, size_t max, unsigned int flags = 0);
 		ssize_t write(const void * src, size_t size, unsigned int flags = 0);
+
+		ssize_t  read(Address& remote, void* dest, size_t max, unsigned int flags = 0);
+		ssize_t write(Address remote, const void * src, size_t size, unsigned int flags = 0);
 	};
 
 
 	class Socket::Tcp : public Socket {
 	public:
-		Tcp(int addr_family): Socket::Socket(addr_family, SOCK_STREAM, IPPROTO_TCP) { }
+		Tcp(int addr_family = AF_UNSPEC):
+				Socket::Socket(addr_family, SOCK_STREAM, IPPROTO_TCP)
+		{ }
 	};
 	class Socket::Tcp4 : public Socket {
 	public:
@@ -181,7 +193,9 @@ inline namespace csono {
 
 	class Socket::Udp : public Socket {
 	public:
-		Udp(int addr_family): Socket::Socket(addr_family, SOCK_DGRAM,  IPPROTO_UDP) { }
+		Udp(int addr_family = AF_UNSPEC):
+				Socket::Socket(addr_family, SOCK_DGRAM, IPPROTO_UDP)
+		{ }
 	};
 	class Socket::Udp4 : public Socket {
 	public:
@@ -207,7 +221,7 @@ inline namespace csono {
 		constexpr bool operator ! () const { return ! passive_socket; }
 
 		Listener& operator = (const Listener &) = delete;
-		Listener& operator = (Listener&&);
+		Listener& operator = (Listener&&) = default;
 
 		Socket accept();
 	};

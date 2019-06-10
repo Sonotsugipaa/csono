@@ -29,16 +29,12 @@ namespace csono {
 
 
 	Socket::~Socket() {
-		if(sock_fd != -1) {
-			::close(sock_fd);  sock_fd = -1;
-			bound_addr = Address();
-			connected_addr = Address();
-		}
+		close();
 	}
 
 
 	Socket& Socket::operator = (Socket&& mov) {
-		this->~Socket();
+		close();
 		sock_fd = mov.sock_fd;  mov.sock_fd = -1;
 		sock_type = mov.sock_type;  mov.sock_type = 0;
 		sock_protocol = mov.sock_protocol;  mov.sock_protocol = 0;
@@ -81,7 +77,7 @@ namespace csono {
 			socklen_t recv_addr_size = sizeof(sockaddr);
 			::memset(&recv_addr, 0, sizeof(sockaddr));
 			int retn_sock = ::accept(sock_fd, &recv_addr, &recv_addr_size);
-			if(retn_sock == -1)  return Socket(-1);
+			if(retn_sock == -1)  return Socket();
 			connected_addr = Address(recv_addr, recv_addr_size, type(), protocol());
 			return Socket(
 					retn_sock,
@@ -92,21 +88,54 @@ namespace csono {
 						bound_addr.protocol()
 					) );
 		}
-		return Socket(-1);
+		return Socket();
 	}
 
 
-	void Socket::close() { this->~Socket(); }
+	void Socket::close() {
+		if(sock_fd != -1) {
+			::close(sock_fd);  sock_fd = -1;
+			bound_addr = Address();
+			connected_addr = Address();
+		}
+	}
 
 
 	ssize_t Socket::read(void* dest, size_t max, unsigned int flags) {
 		if(sock_fd == -1)  return -1;
-		return ::recv(sock_fd, dest, max, flags | MSG_NOSIGNAL);
+		return ::recv(
+				sock_fd,
+				dest, max,
+				flags | MSG_NOSIGNAL );
 	}
 
 	ssize_t Socket::write(const void * src, size_t size, unsigned int flags) {
 		if(sock_fd == -1)  return -1;
-		return ::send(sock_fd, src, size, flags | MSG_NOSIGNAL);
+		return ::send(
+				sock_fd,
+				src, size,
+				flags | MSG_NOSIGNAL );
+	}
+
+	ssize_t Socket::read(Address& addr, void* dest, size_t max, unsigned int flags) {
+		sockaddr sa;   socklen_t sa_len = sizeof(sockaddr);
+		if(sock_fd == -1)  return -1;
+		ssize_t retn = ::recvfrom(
+				sock_fd,
+				dest, max,
+				flags | MSG_NOSIGNAL,
+				&sa, &sa_len );
+		addr = Address(sa, sa_len, addr.socketType(), addr.protocol());
+		return retn;
+	}
+
+	ssize_t Socket::write(Address addr, const void * src, size_t size, unsigned int flags) {
+		if(sock_fd == -1)  return -1;
+		return ::sendto(
+				sock_fd,
+				src, size,
+				flags | MSG_NOSIGNAL,
+				addr.generic(), addr.generic_size() );
 	}
 
 }

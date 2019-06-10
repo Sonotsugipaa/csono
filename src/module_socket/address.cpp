@@ -70,8 +70,7 @@ namespace csono {
 		nodes.size = 1;
 		addrinfo ai;
 		/* All ai members will be hard-copied by Node::Node(...)
-		 * before ai's death, so pointer ownership doesn't matter;
-		 * also, addrinfo is a C struct - its members aren't really mutable */
+		 * before ai's death, so pointer ownership doesn't matter */
 		ai.ai_flags = 0;
 		ai.ai_family = sa.sa_family;
 		ai.ai_socktype = sock;
