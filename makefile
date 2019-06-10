@@ -2,12 +2,12 @@ export CPPFLAGS=-std=c++17 -g -Wall -Wpedantic -I./include -Llib
 export ALL_MODS=$(patsubst src/module_%,%,$(wildcard src/module_*))
 export ALL_OBJS=$(patsubst %,build/%.o,$(ALL_MODS))
 export ALL_EXES=$(patsubst src/%.cpp,bin/%,$(wildcard src/*.cpp))
-export LIBS=#no-lib#
 
-# objects should not be removed automatically
+# objects and libraries should not be removed automatically
+.PRECIOUS: lib/lib%.a
 .PHONY: build/%.o
-.PHONY: install
-.PHONY: uninstall
+
+.PHONY: install uninstall
 
 
 all: $(ALL_EXES) install
