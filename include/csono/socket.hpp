@@ -156,7 +156,12 @@ inline namespace csono {
 		constexpr int fd() const { return sock_fd; }
 		constexpr int type() const { return sock_type; }
 		constexpr int protocol() const { return sock_protocol; }
+		constexpr const Address & localAddr() const { return bound_addr; }
+		constexpr const Address & remoteAddr() const { return connected_addr; }
+		
+		[[deprecated("discontinued name; use localAddr() instead")]]
 		constexpr const Address & boundAddress() const { return bound_addr; }
+		[[deprecated("discontinued name; use remoteAddr() instead")]]
 		constexpr const Address & connectedAddress() const { return connected_addr; }
 
 		Socket accept();

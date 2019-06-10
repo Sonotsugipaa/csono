@@ -46,10 +46,10 @@ namespace csono::test {
 
 	void out_cmp_sock(const Socket & socket_i, const Socket & socket_o) {
 		std::cout
-				<< " >> \""   << socket_i.boundAddress().socketType()
-				<< ", "       << socket_i.boundAddress().fullname()
-				<< "\" vs \"" << socket_o.connectedAddress().socketType()
-				<< ", "       << socket_o.connectedAddress().fullname() << '"' << std::endl;
+				<< " >> \""   << socket_i.localAddr().socketType()
+				<< ", "       << socket_i.localAddr().fullname()
+				<< "\" vs \"" << socket_o.remoteAddr().socketType()
+				<< ", "       << socket_o.remoteAddr().fullname() << '"' << std::endl;
 	}
 
 
@@ -69,7 +69,7 @@ namespace csono::test {
 		}
 
 		bool retn = (std::string(recv) == "lol");
-		if(socket_in.boundAddress() != socket_out.connectedAddress()) {
+		if(socket_in.localAddr() != socket_out.remoteAddr()) {
 			std::cout << " >> input/output socket addresses mismatch\n";
 			retn = false;
 		}
@@ -97,7 +97,7 @@ namespace csono::test {
 		}
 
 		bool retn = (std::string(recv) == "lol");
-		if(socket_in.boundAddress() != socket_out.connectedAddress()) {
+		if(socket_in.localAddr() != socket_out.remoteAddr()) {
 			std::cout << " >> input/output socket addresses mismatch\n";
 			retn = false;
 		}
