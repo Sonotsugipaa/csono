@@ -59,7 +59,28 @@ namespace csono {
 	}
 
 
-	Address::Address() { }
+	Address::Address() {
+		nodes.ptr = new Node[1];
+		nodes.size = 1;
+	}
+
+
+	Address::Address(const sockaddr & sa, socklen_t len, int sock, int proto) {
+		nodes.ptr = new Node[1];
+		nodes.size = 1;
+		addrinfo ai;
+		/* All ai members will be hard-copied by Node::Node(...)
+		 * before ai's death, so pointer ownership doesn't matter */
+		ai.ai_flags = 0;
+		ai.ai_family = sa.sa_family;
+		ai.ai_socktype = sock;
+		ai.ai_protocol = proto;
+		ai.ai_addrlen = len;
+		ai.ai_addr = const_cast<sockaddr*>(&sa);
+		ai.ai_canonname = nullptr;
+		ai.ai_next = nullptr;
+		*nodes.ptr = Node(ai);
+	}
 
 
 	Address::Address(Node node) {

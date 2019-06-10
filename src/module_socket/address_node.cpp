@@ -45,6 +45,7 @@ namespace {
 		return retn;
 	}
 
+#pragma GCC warning "Address::port() sometimes returns some weird shit"
 	uint16_t ai_port(const addrinfo & ai) {
 		switch(ai.ai_family) {
 			case AF_INET:   return ntohs(((sockaddr_in*)  ai.ai_addr)->sin_port);
@@ -71,15 +72,19 @@ namespace csono {
 	Address::Node::Node():
 			flags(0),
 			family(AF_UNSPEC),
+			socket_type(0),
+			protocol(IPPROTO_IP),
 			addr_len(0),
 			addr(nullptr),
 			name(std::string()),
-			fullname("null")
+			fullname(std::string())
 	{ }
 
 	Address::Node::Node(const addrinfo & ai):
 			flags(ai.ai_flags),
 			family(ai.ai_family),
+			socket_type(ai.ai_socktype),
+			protocol(ai.ai_protocol),
 			addr_len(ai.ai_addrlen),
 			addr(clone_sockaddr(ai.ai_addr, ai.ai_addrlen)),
 			name(get_hostname(&ai)),
@@ -92,6 +97,8 @@ namespace csono {
 	Address::Node::Node(const Node & cpy):
 			flags(cpy.flags),
 			family(cpy.family),
+			socket_type(cpy.socket_type),
+			protocol(cpy.protocol),
 			addr_len(cpy.addr_len),
 			addr(clone_sockaddr(cpy.addr, cpy.addr_len)),
 			name(cpy.name),
@@ -104,6 +111,8 @@ namespace csono {
 	Address::Node::Node(Node&& mov):
 			flags(std::move(mov.flags)),
 			family(std::move(mov.family)),
+			socket_type(std::move(mov.socket_type)),
+			protocol(std::move(mov.protocol)),
 			addr_len(std::move(mov.addr_len)),
 			addr(mov.addr),
 			name(std::move(mov.name)),
@@ -121,6 +130,8 @@ namespace csono {
 
 		flags = cpy.flags;
 		family = cpy.family;
+		socket_type = cpy.socket_type;
+		protocol = cpy.protocol;
 		addr_len = cpy.addr_len;
 		addr = clone_sockaddr(cpy.addr, cpy.addr_len);
 		name = cpy.name;
@@ -136,6 +147,8 @@ namespace csono {
 
 		flags = std::move(mov.flags);
 		family = std::move(mov.family);
+		socket_type = std::move(mov.socket_type);
+		protocol = std::move(mov.protocol);
 		addr_len = std::move(mov.addr_len);
 		addr = std::move(mov.addr);
 		name = std::move(mov.name);

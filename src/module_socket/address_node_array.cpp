@@ -16,7 +16,7 @@
 namespace csono {
 
 	Address::NodeArray::NodeArray():
-			ptr(nullptr), size(0)
+			ptr(new Node[1]), size(0)
 	{ }
 
 
