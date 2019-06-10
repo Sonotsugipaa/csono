@@ -45,7 +45,6 @@ namespace {
 		return retn;
 	}
 
-#pragma GCC warning "Address::port() sometimes returns some weird shit"
 	uint16_t ai_port(const addrinfo & ai) {
 		switch(ai.ai_family) {
 			case AF_INET:   return ntohs(((sockaddr_in*)  ai.ai_addr)->sin_port);
@@ -68,6 +67,9 @@ namespace {
 
 
 namespace csono {
+
+	Address::Node Address::Node::null = Node();
+
 
 	Address::Node::Node():
 			flags(0),
@@ -124,6 +126,16 @@ namespace csono {
 	}
 
 
+	Address::Node::~Node() {
+		DEBUG_OUT(std::string("DESTROYING ") << reinterpret_cast<const void *>(addr) << " (with FACTS and LOGIC)")
+		if(addr != nullptr) {
+			::free(addr);
+			addr = nullptr;
+			addr_len = 0;
+		}
+	}
+
+
 	Address::Node& Address::Node::operator = (const Address::Node & cpy) {
 		if(addr != nullptr)  ::free(addr);
 		DEBUG_OUT(std::string("COPY-ASSIGNING ") << reinterpret_cast<const void *>(cpy.addr))
@@ -156,16 +168,6 @@ namespace csono {
 
 		mov.addr = nullptr;  mov.addr_len = 0;
 		return *this;
-	}
-
-
-	Address::Node::~Node() {
-		DEBUG_OUT(std::string("DESTROYING ") << reinterpret_cast<const void *>(addr) << " (with FACTS and LOGIC)")
-		if(addr != nullptr) {
-			::free(addr);
-			addr = nullptr;
-			addr_len = 0;
-		}
 	}
 
 }
