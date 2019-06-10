@@ -88,8 +88,8 @@ inline namespace csono {
 		inline const std::string & fullname() const { return nodes.ptr->fullname; }
 		inline operator std::string () const { return fullname(); }
 
-		constexpr operator bool () const { return nodes.ptr != nullptr; }
-		constexpr bool operator ! () const { return nodes.ptr == nullptr; }
+		constexpr operator bool () const { return nodes.size != 0; }
+		constexpr bool operator ! () const { return nodes.size == 0; }
 
 		constexpr sockaddr* generic() { return nodes.ptr->addr; }
 		constexpr const sockaddr * generic() const { return nodes.ptr->addr; }
@@ -173,7 +173,9 @@ inline namespace csono {
 
 	class Socket::Tcp : public Socket {
 	public:
-		Tcp(int addr_family): Socket::Socket(addr_family, SOCK_STREAM, IPPROTO_TCP) { }
+		Tcp(int addr_family = AF_UNSPEC):
+				Socket::Socket(addr_family, SOCK_STREAM, IPPROTO_TCP)
+		{ }
 	};
 	class Socket::Tcp4 : public Socket {
 	public:
@@ -186,7 +188,9 @@ inline namespace csono {
 
 	class Socket::Udp : public Socket {
 	public:
-		Udp(int addr_family): Socket::Socket(addr_family, SOCK_DGRAM,  IPPROTO_UDP) { }
+		Udp(int addr_family = AF_UNSPEC):
+				Socket::Socket(addr_family, SOCK_DGRAM, IPPROTO_UDP)
+		{ }
 	};
 	class Socket::Udp4 : public Socket {
 	public:
@@ -212,7 +216,7 @@ inline namespace csono {
 		constexpr bool operator ! () const { return ! passive_socket; }
 
 		Listener& operator = (const Listener &) = delete;
-		Listener& operator = (Listener&&);
+		Listener& operator = (Listener&&) = default;
 
 		Socket accept();
 	};

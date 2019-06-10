@@ -29,16 +29,12 @@ namespace csono {
 
 
 	Socket::~Socket() {
-		if(sock_fd != -1) {
-			::close(sock_fd);  sock_fd = -1;
-			bound_addr = Address();
-			connected_addr = Address();
-		}
+		close();
 	}
 
 
 	Socket& Socket::operator = (Socket&& mov) {
-		this->~Socket();
+		close();
 		sock_fd = mov.sock_fd;  mov.sock_fd = -1;
 		sock_type = mov.sock_type;  mov.sock_type = 0;
 		sock_protocol = mov.sock_protocol;  mov.sock_protocol = 0;
@@ -81,7 +77,7 @@ namespace csono {
 			socklen_t recv_addr_size = sizeof(sockaddr);
 			::memset(&recv_addr, 0, sizeof(sockaddr));
 			int retn_sock = ::accept(sock_fd, &recv_addr, &recv_addr_size);
-			if(retn_sock == -1)  return Socket(-1);
+			if(retn_sock == -1)  return Socket();
 			connected_addr = Address(recv_addr, recv_addr_size, type(), protocol());
 			return Socket(
 					retn_sock,
@@ -92,11 +88,17 @@ namespace csono {
 						bound_addr.protocol()
 					) );
 		}
-		return Socket(-1);
+		return Socket();
 	}
 
 
-	void Socket::close() { this->~Socket(); }
+	void Socket::close() {
+		if(sock_fd != -1) {
+			::close(sock_fd);  sock_fd = -1;
+			bound_addr = Address();
+			connected_addr = Address();
+		}
+	}
 
 
 	ssize_t Socket::read(void* dest, size_t max, unsigned int flags) {

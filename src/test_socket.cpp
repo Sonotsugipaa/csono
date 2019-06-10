@@ -18,6 +18,11 @@ namespace csono::test {
 	}
 
 
+	Socket mov_socket(Socket&& mov, unsigned recursion = 3) {
+		return (recursion > 0)? std::move(mov) : mov_socket(std::move(mov), recursion - 1);
+	}
+
+
 	uint16_t try_bind(
 			Socket& socket,
 			uint16_t port = 10000,
@@ -34,6 +39,7 @@ namespace csono::test {
 			++port;  --retries;
 			std::cout << "Trying to bind socket fd#" << socket.fd() << " on port " << port << "..." << std::endl;
 		}
+		if(errno == EADDRINUSE)  errno = 0;
 		return port;
 	}
 
@@ -75,7 +81,7 @@ namespace csono::test {
 
 	bool perform_tcp(uint16_t port = 11000, bool v6 = false) {
 		Socket socket_in = Socket::Tcp(v6? AF_INET6 : AF_INET);
-		Socket socket_out = Socket::Tcp(v6? AF_INET6 : AF_INET);
+		Socket socket_out = mov_socket(Socket::Tcp(v6? AF_INET6 : AF_INET));
 		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';  recv[3]='\0';
 
 		if(socket_in && socket_out) {
@@ -83,16 +89,11 @@ namespace csono::test {
 			if(port != 0) {
 				socket_in.listen(4);
 				if(socket_out.connect(Address(v6? "::1" : "127.0.0.1", port))) {
-					Socket conn = socket_in.accept();
+					Socket conn = mov_socket(socket_in.accept());
 					socket_out.write("lol", 3);
 					conn.read(recv, 3);  recv[3] = '\0';
 				}
 			}
-		}
-
-		if(errno != 0) {
-			std::cout << "ERRNO " << errno << std::endl;
-			errno = 0;
 		}
 
 		bool retn = (std::string(recv) == "lol");
@@ -100,6 +101,13 @@ namespace csono::test {
 			std::cout << " >> input/output socket addresses mismatch\n";
 			retn = false;
 		}
+
+		if(errno != 0) {
+			std::cout << "ERRNO " << errno << std::endl;
+			errno = 0;
+			retn = false;
+		}
+
 		out_cmp_sock(socket_in, socket_out);
 		std::cout << "TCP v" << (v6? '6':'4') << ": " << (retn? OK"\n" : NO"\n");
 		return retn;

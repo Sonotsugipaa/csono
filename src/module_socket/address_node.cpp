@@ -45,6 +45,7 @@ namespace {
 		return retn;
 	}
 
+#pragma GCC warning "Address::port() sometimes returns some weird shit"
 	uint16_t ai_port(const addrinfo & ai) {
 		switch(ai.ai_family) {
 			case AF_INET:   return ntohs(((sockaddr_in*)  ai.ai_addr)->sin_port);
