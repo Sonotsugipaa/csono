@@ -81,7 +81,7 @@ namespace csono {
 			connected_addr = Address(recv_addr, recv_addr_size, type(), protocol());
 			return Socket(
 					retn_sock,
-					boundAddress(),
+					localAddr(),
 					Address(
 						recv_addr,  recv_addr_size,
 						bound_addr.socketType(),
