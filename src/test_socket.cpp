@@ -8,6 +8,8 @@
 
 #define OK "\033[1;94mOK\033[m"
 #define NO "\033[1;91mNO\033[m"
+#define SUCCESS "\033[1;94mSUCCESS\033[m"
+#define FAILURE "\033[1;91mFAILURE\033[m"
 
 
 
@@ -137,7 +139,7 @@ namespace csono::test {
 				<< "ADDRESS - comparing "<<addr1.fullname()<<" ("<<addr1.socketType()
 				<< ") with "<<addr2.fullname()<<" ("<<addr2.socketType()<<")\n";
 		expect = (expect == (addr1 == addr2));
-		std::cout << (expect? "SUCCESS":"FAILURE") << std::endl;
+		std::cout << (expect? SUCCESS : FAILURE) << std::endl;
 		return expect;
 	}
 
@@ -166,6 +168,6 @@ namespace csono::test {
 int main(int, char**) {
 	std::cout << " ----- SOCKET TEST -----" << std::endl;
 	bool result = csono::test::perform();
-	std::cout << "\nResult: " << (result? "success" : "failure") << std::endl;
+	std::cout << "\nResult: " << (result? SUCCESS : FAILURE) << std::endl;
 	return EXIT_SUCCESS;
 }
