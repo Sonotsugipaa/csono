@@ -16,8 +16,10 @@
 namespace csono {
 
 	Address::NodeArray::NodeArray():
-			ptr(new Node[1]), size(0)
-	{ }
+			ptr(&Address::Node::null), size(0)
+	{
+		DEBUG_OUT("NODEARRAY NULL PTR" << ptr << " SIZE" << size)
+	}
 
 
 	Address::NodeArray::NodeArray(const NodeArray & cpy):
@@ -34,6 +36,16 @@ namespace csono {
 			size(std::move(mov.size))
 	{
 		mov.ptr = nullptr;  mov.size = 0;
+	}
+
+
+	Address::NodeArray::~NodeArray() {
+		DEBUG_OUT("NODEARRAY DEALLOC PTR" << ptr << " SIZE" << size)
+		if(size > 0) {
+			delete[] ptr;
+			size = 0;
+			ptr = nullptr;
+		}
 	}
 
 
@@ -55,15 +67,6 @@ namespace csono {
 		mov.ptr = nullptr;  mov.size = 0;
 
 		return *this;
-	}
-
-
-	Address::NodeArray::~NodeArray() {
-		if(ptr != nullptr) {
-			delete[] ptr;
-			size = 0;
-			ptr = nullptr;
-		}
 	}
 
 }

@@ -41,6 +41,8 @@ inline namespace csono {
 			std::string name;
 			std::string fullname;
 
+			static Node null;
+
 			Node();
 			Node(const addrinfo &);
 			Node(const Node & cpy);
@@ -158,7 +160,7 @@ inline namespace csono {
 		constexpr int protocol() const { return sock_protocol; }
 		constexpr const Address & localAddr() const { return bound_addr; }
 		constexpr const Address & remoteAddr() const { return connected_addr; }
-		
+
 		[[deprecated("discontinued name; use localAddr() instead")]]
 		constexpr const Address & boundAddress() const { return bound_addr; }
 		[[deprecated("discontinued name; use remoteAddr() instead")]]
