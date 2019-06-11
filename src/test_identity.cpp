@@ -1,13 +1,15 @@
-#include <csono/identity.tpp>
-
 #include <iostream>
+
+#include "testdefs.hpp"
+
+#include <csono/identity.tpp>
 
 
 
 namespace csono::test {
 
 	bool perform(const char * what, bool outcome) {
-		std::cout << (outcome? "ok  <--" : "fail  <") << "----  " << what << std::endl;
+		std::cout << (outcome? OK"  <--" : NO"  <") << "----  " << what << std::endl;
 		return outcome;
 	}
 
@@ -51,6 +53,6 @@ namespace csono::test {
 
 int main(int, char**) {
 	bool result = csono::test::perform();
-	std::cout << "\nResult: " << (result? "success" : "failure") << std::endl;
+	std::cout << "\nResult: " << (result? SUCCESS : FAILURE) << std::endl;
 	return result? EXIT_SUCCESS : EXIT_FAILURE;
 }

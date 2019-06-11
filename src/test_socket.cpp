@@ -1,13 +1,12 @@
-#include <csono/socket.hpp>
-
 #include <iostream>
 #include <thread>
 #include <chrono>
 
 #include <cerrno>
 
-#define OK "\033[1;94mOK\033[m"
-#define NO "\033[1;91mNO\033[m"
+#include "testdefs.hpp"
+
+#include <csono/socket.hpp>
 
 
 

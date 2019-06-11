@@ -2,10 +2,9 @@
 #include <thread>
 #include <chrono>
 
-#include <csono/serial.hpp>
+#include "testdefs.hpp"
 
-#define OK "\033[1;94mOK\033[m"
-#define NO "\033[1;91mNO\033[m"
+#include <csono/serial.hpp>
 
 
 
@@ -66,6 +65,6 @@ namespace csono::test {
 int main(int, char**) {
 	std::cout << " ----- SERIAL TEST -----" << std::endl;
 	bool result = csono::test::perform();
-	std::cout << "\nResult: " << (result? "success" : "failure") << std::endl;
+	std::cout << "\nResult: " << (result? SUCCESS : FAILURE) << std::endl;
 	return result? EXIT_SUCCESS : EXIT_FAILURE;
 }

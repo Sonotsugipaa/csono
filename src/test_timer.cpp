@@ -1,7 +1,9 @@
-#include <csono/timer.hpp>
-
 #include <iostream>
 #include <thread>
+
+#include "testdefs.hpp"
+
+#include <csono/timer.hpp>
 
 
 
@@ -35,6 +37,6 @@ namespace csono::test {
 
 int main(int, char**) {
 	csono::test::perform();
-	std::cout << "\nResult: success... probably" << std::endl;
+	std::cout << ("\nResult: " SUCCESS "... probably") << std::endl;
 	return EXIT_SUCCESS;
 }
