@@ -4,8 +4,7 @@ export ALL_OBJS=$(patsubst %,build/%.o,$(ALL_MODS))
 export ALL_EXES=$(patsubst src/%.cpp,bin/%,$(wildcard src/*.cpp))
 
 # objects and libraries should not be removed automatically
-.PRECIOUS: lib/lib%.a
-.PHONY: build/%.o
+.SECONDARY:
 
 .PHONY: install uninstall
 
