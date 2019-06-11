@@ -136,7 +136,7 @@ namespace csono::test {
 				<< "ADDRESS - comparing "<<addr1.fullname()<<" ("<<addr1.socketType()
 				<< ") with "<<addr2.fullname()<<" ("<<addr2.socketType()<<")\n";
 		expect = (expect == (addr1 == addr2));
-		std::cout << (expect? "SUCCESS":"FAILURE") << std::endl;
+		std::cout << (expect? SUCCESS : FAILURE) << std::endl;
 		return expect;
 	}
 
@@ -165,6 +165,6 @@ namespace csono::test {
 int main(int, char**) {
 	std::cout << " ----- SOCKET TEST -----" << std::endl;
 	bool result = csono::test::perform();
-	std::cout << "\nResult: " << (result? "success" : "failure") << std::endl;
+	std::cout << "\nResult: " << (result? SUCCESS : FAILURE) << std::endl;
 	return EXIT_SUCCESS;
 }

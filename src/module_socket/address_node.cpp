@@ -15,23 +15,32 @@
 
 namespace {
 
-	#pragma GCC warning "unneeded complexity"
+	// #pragma GCC warning "unneeded complexity"
 	/* UNNEEDED COMPLEXITY:
 	 * the function NEEDS to return a std::string, while ::inet_ntop(...)
 	 * NEEDS to write on a C-style string buffer; there's no way (afaik)
 	 * to let ::inet_ntop(...) write on the std::string itself, without
 	 * copying the buffer - which will die instantly anyway.
-	 * This is a pet-peeve nightmare. */
+	 * This is a pet-peeve nightmare.
+	 *
+	 * UPDATE: apparently this double-copy makes sense, because std::string
+	 * uses its own allocator. It still makes me cringe, but the loss is
+	 * acceptable as long as hostnames aren't more than 64 characters
+	 * long - which would return an incomplete or null name anyway. */
 	std::string get_hostname(const addrinfo * ai) {
 		if(ai == nullptr)  return "null";
 		constexpr size_t MAX_LENGTH = 48;
 		char* buffer = new char[MAX_LENGTH + 1];  buffer[MAX_LENGTH] = '\0';
-		::inet_ntop(
+		std::string retn;
+		const char * result = ::inet_ntop(
 				ai->ai_family,
 				ai->ai_addr,
 				buffer,
 				MAX_LENGTH );
-		std::string retn = buffer;
+		if(result == nullptr)
+			retn = "";
+		else
+			retn = result;
 		delete[] buffer;
 		return retn;
 	}
