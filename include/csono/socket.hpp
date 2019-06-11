@@ -81,6 +81,13 @@ inline namespace csono {
 				Address::Address(host, std::to_string(port).c_str())
 		{ }
 
+		inline Address(const std::string & host, const std::string & service):
+				Address::Address(host.c_str(), service.c_str())  { }
+		inline Address(const char * host, const std::string & service):
+				Address::Address(host, service.c_str())  { }
+		inline Address(const std::string & host, const char * service):
+				Address::Address(host.c_str(), service)  { }
+
 		constexpr int family() const { return nodes.ptr->family; }
 		constexpr int socketType() const { return nodes.ptr->socket_type; }
 		constexpr int protocol() const { return nodes.ptr->protocol; }
