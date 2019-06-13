@@ -90,9 +90,14 @@ namespace csono {
 	}
 
 
-	Address::Address(const char * host, const char * service) {
+	Address::Address(const char * host, const char * service, int st, int pr) {
 		addrinfo* ai;
-		int result = ::getaddrinfo(host, service, nullptr, &ai);
+		addrinfo hints;
+		hints.ai_socktype = st;
+		hints.ai_protocol = pr;
+		hints.ai_family = AF_UNSPEC;
+		hints.ai_flags = AI_V4MAPPED | AI_ADDRCONFIG | AI_CANONNAME;
+		int result = ::getaddrinfo(host, service, &hints, &ai);
 
 		if(result == 0) {
 			addrinfo_list_to_array(nodes, ai);
