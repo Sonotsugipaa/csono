@@ -57,19 +57,25 @@ namespace csono::test {
 		Socket socket_out = Socket::Udp(v6? AF_INET6 : AF_INET);
 		char recv[4];  recv[0]='o';  recv[1]='l';  recv[2]='o';  recv[3]='\0';
 
+		Address addr_out = Address(v6? "::1" : "127.0.0.1", port);
+		Address addr_in_1, addr_in_2;
+
 		if(socket_in && socket_out) {
 			port = try_bind(socket_in, port, 5, v6);
 			if(port != 0) {
-				Address addr;
-				socket_out.write(Address(v6? "::1" : "127.0.0.1", port), "lol", 3);
-				socket_in.read(addr, recv, 3);  recv[3] = '\0';
-				std::cout << "UDP address received: " << addr.fullname() << '\n';
+				socket_out.write(addr_out, "lol", 3);
+				socket_in.read(addr_in_1, recv, 3);  recv[3] = '\0';
+				socket_out.write(addr_out, "lol", 3);
+				socket_in.read(addr_in_2, recv, 3);  recv[3] = '\0';
+				std::cout
+						<< "UDP addresses received: " << addr_in_1.fullname()
+						<< ", " << addr_in_2.fullname() << '\n';
 			}
 		}
 
 		bool retn = (std::string(recv) == "lol");
-		if(socket_in.localAddr() != socket_out.remoteAddr()) {
-			std::cout << " >> input/output socket addresses mismatch\n";
+		if(addr_in_1 != addr_in_2) {
+			std::cout << " >> input socket addresses mismatch\n";
 			retn = false;
 		}
 		out_cmp_sock(socket_in, socket_out);
@@ -140,6 +146,16 @@ namespace csono::test {
 		return expect;
 	}
 
+	bool perform_addr_null(Address&& null_addr, bool is_null) {
+		bool retn = is_null != (((bool) null_addr) && (!!null_addr));
+		if(! retn)
+			std::cout
+					<< (is_null? "Null address" : "Valid address")
+					<< " is " << null_addr.generic()
+					<< " (evaluation error)\n";
+		return retn;
+	}
+
 	bool perform_addr() {
 		std::cout << "ADDRESS\n";
 		perform_addr("127.0.0.1",   "11000");
@@ -147,7 +163,9 @@ namespace csono::test {
 		perform_addr("invalid",     "http");
 		perform_addr("::1",         "http");
 		return
-				perform_addr_cmp(Address("127.0.0.1","http"), Address("::1","http"), false) &&
+				perform_addr_null(Address(), true) &
+				perform_addr_null(Address("127.0.0.1","http"), false) &
+				perform_addr_cmp(Address("127.0.0.1","http"), Address("::1","http"), false) &
 				perform_addr_cmp(Address("127.0.0.1","4"), Address("127.0.0.1","4"), true);
 	}
 

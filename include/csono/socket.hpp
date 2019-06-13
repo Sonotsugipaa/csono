@@ -97,8 +97,8 @@ inline namespace csono {
 		inline const std::string & fullname() const { return nodes.ptr->fullname; }
 		inline operator std::string () const { return fullname(); }
 
-		constexpr operator bool () const { return nodes.size != 0; }
-		constexpr bool operator ! () const { return nodes.size == 0; }
+		constexpr operator bool () const { return nodes.ptr->addr != nullptr; }
+		constexpr bool operator ! () const { return nodes.ptr->addr == nullptr; }
 
 		constexpr sockaddr* generic() { return nodes.ptr->addr; }
 		constexpr const sockaddr * generic() const { return nodes.ptr->addr; }
@@ -110,12 +110,10 @@ inline namespace csono {
 		};
 		constexpr unsigned size() const { return nodes.size; }
 
-		constexpr bool operator == (const Address & r) {
-			return
-					(socketType() == r.socketType()) &&
-					(fullname() == r.fullname());
+		inline bool operator == (const Address & r) {
+			return (fullname() == r.fullname());
 		}
-		constexpr bool operator != (const Address & r) { return ! (*this == r); }
+		inline bool operator != (const Address & r) { return ! (*this == r); }
 
 	};
 
