@@ -29,11 +29,9 @@ G++, GNU Make, git.
 
 Installing the library means moving all (exposed) headers and the static
 library to <code>/usr/local/...</code> - this can be done by running
-<code>make</code> or <code>make install</code> as a normal user with
-<code>sudo</code> privileges on <code>cp</code> and <code>mkdir</code>;
+<code>sudo make</code> or <code>sudo make install</code> as superuser.
 <br/>
-To undo the operation, run <code>make uninstall</code> with <code>sudo</code>
-privileges on <code>rm</code>.
+To undo the operation, run <code>sudo make uninstall</code>.
 
 
 ## Compiling and building

@@ -27,16 +27,16 @@ install: lib/libcsono.a
 	# --------------------------------------#
 	# Installing the library in /usr/local/ #
 	# --------------------------------------#
-	sudo mkdir -p /usr/local/include/csono
-	sudo cp -rf include/csono/. /usr/local/include/csono/.
-	sudo cp -f lib/libcsono.a /usr/local/lib/libcsono.a
+	mkdir -p /usr/local/include/csono
+	cp -rf include/csono/. /usr/local/include/csono/.
+	cp -f lib/libcsono.a /usr/local/lib/libcsono.a
 
 uninstall:
 	# ------------------------------------#
 	# Removing the library in /usr/local/ #
 	# ------------------------------------#
-	sudo rm -r /usr/local/include/csono
-	sudo rm /usr/local/lib/libcsono.a
+	rm -r /usr/local/include/csono
+	rm /usr/local/lib/libcsono.a
 
 clean:
 	rm -rf bin lib
