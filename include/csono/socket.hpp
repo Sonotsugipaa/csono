@@ -75,7 +75,8 @@ inline namespace csono {
 	public:
 		Address();
 		Address(Node);
-		Address(const char * host, const char * service);
+		Address(const char * host, const char * service,
+		        int socktype = 0, int protocol = 0);
 
 		inline Address(const char * host, uint16_t port):
 				Address::Address(host, std::to_string(port).c_str())

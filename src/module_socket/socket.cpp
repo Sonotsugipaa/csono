@@ -45,23 +45,36 @@ namespace csono {
 
 
 	bool Socket::bind(Address local) {
-		if(sock_fd == -1)  return false;
-		if(0 == ::bind(sock_fd, local.generic(), local.generic_size())) {
-			bound_addr = std::move(local);
-			return true;
-		} else {
+		if(local.size() > 1) {
+			for(unsigned i=0; i < local.size(); ++i) {
+				if(local[i] && bind(local[i]))  return true;
+			}
 			return false;
+		} else {
+			if(sock_fd == -1)  return false;
+			if(0 == ::bind(sock_fd, local.generic(), local.generic_size())) {
+				bound_addr = std::move(local);
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 
 
 	bool Socket::connect(Address rem) {
-		if(sock_fd == -1)  return false;
-		if(-1 != ::connect(sock_fd, rem.generic(), rem.generic_size())) {
-			connected_addr = std::move(rem);
-			return true;
-		} else {
+		if(rem.size() > 1) {
+			for(unsigned i=0; i < rem.size(); ++i)
+				if(rem[i] && connect(rem[i]))  return true;
 			return false;
+		} else {
+			if(sock_fd == -1)  return false;
+			if(-1 != ::connect(sock_fd, rem.generic(), rem.generic_size())) {
+				connected_addr = std::move(rem);
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 
