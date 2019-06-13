@@ -9,7 +9,8 @@ export ALL_EXES=$(patsubst src/%.cpp,bin/%,$(wildcard src/*.cpp))
 .PHONY: install uninstall
 
 
-all: $(ALL_EXES) install
+all: $(ALL_EXES)
+	make install
 
 build/%.o: src/module_%/makefile
 	make --file=$< $@
