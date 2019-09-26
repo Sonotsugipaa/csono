@@ -16,9 +16,10 @@ namespace csono {
 			retn.signature = src;
 			if(retn.signature) {
 				retn.payload = std::string(src+5, src_len-5);
+				return retn;
 			}
 		}
-		return retn;
+		return Serial();
 	}
 
 
