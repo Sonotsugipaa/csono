@@ -1,3 +1,8 @@
+### Deprecated
+
+I'm not maintaining this anymore; I will delete the repository in a few months since writing this.  
+If you want me to keep it up or you want its ownership, send me an email or something.
+
 #  CSono
 ## A small library of C++ utilities, created mostly for learning purposes.
 
